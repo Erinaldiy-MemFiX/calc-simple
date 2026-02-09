@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Mineral Air</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Print Styles */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; font-size: 12px; }
+            .shadow-lg { box-shadow: none !important; }
+            .border { border: none !important; }
+            /* Force background colors for print */
+            .bg-slate-100 { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+            .bg-blue-600 { background-color: #2563eb !important; -webkit-print-color-adjust: exact; }
+            .text-white { color: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+
+    <!-- App Container -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 my-4 print:w-full print:border-none print:shadow-none print:my-0">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 p-6 text-white flex items-center justify-between print:bg-blue-600 print:text-white print:p-4">
+            <div class="flex items-center gap-3">
+                <!-- Icon Flask -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-100 print:text-white">
+                    <path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M8.52 16A5.5 5.5 0 0 0 12 18.5V10.2"/>
+                </svg>
+                <div>
+                    <h1 class="text-2xl font-bold print:text-xl">Kalkulator Mineral Air</h1>
+                    <p class="text-blue-100 text-sm print:text-blue-50">Laporan Estimasi Komposisi Garam Hipotetis</p>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex gap-2 no-print">
+                <button onclick="saveConfig()" class="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded text-sm font-medium transition-colors text-white" title="Simpan konfigurasi ke file JSON">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span class="hidden sm:inline">Simpan Data</span>
+                </button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-3 py-2 bg-white text-blue-600 hover:bg-blue-50 rounded text-sm font-medium transition-colors" title="Cetak laporan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                    <span class="hidden sm:inline">Print / PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 print:block print:p-4">
+            
+            <!-- Left Column: Inputs (Interactive Form - Hidden on Print) -->
+            <div class="no-print">
+                <div class="flex items-center gap-2 mb-4 text-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.8-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.39"/></svg>
+                    <h2 class="font-semibold text-lg">Input Konsentrasi Ion (mg/L)</h2>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Kation (+)</h3>
+                    <div id="cation-inputs" class="grid grid-cols-2 gap-4 mb-6">
+                        <!-- Inputs injected by JS -->
+                    </div>
+
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Anion (-)</h3>
+                    <div id="anion-inputs" class="grid grid-cols-2 gap-4">
+                        <!-- Inputs injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Balance Status Interactive -->
+                <div id="balance-card" class="mt-6 p-4 rounded-lg border flex items-start gap-3 bg-emerald-50 border-emerald-200">
+                    <div id="balance-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 mt-1"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </div>
+                    <div>
+                        <h4 id="balance-title" class="font-semibold text-sm text-emerald-700">Neraca Ion (CBE): 0.00%</h4>
+                        <p id="balance-details" class="text-xs text-slate-600 mt-1">Total Kation: 0.00 meq/L <br> Total Anion: 0.00 meq/L</p>
+                        <p id="balance-warning" class="hidden text-xs text-red-600 mt-2 font-medium">Perhatian: Neraca ion tidak seimbang ( error > 10%). Hasil prediksi mineral mungkin tidak akurat. Cek kembali data input.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results & Print Reports -->
+            <div class="flex flex-col h-full print:w-full">
+                
+                <!-- PRINT ONLY: Input Summary Table -->
+                <div class="hidden print:block mb-6">
+                    <h3 class="font-bold text-slate-800 border-b-2 border-slate-200 mb-2 pb-1">Data Analisa Air</h3>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <table class="w-full text-sm">
+                                <thead class="border-b border-slate-300">
+                                    <tr>
+                                        <th class="text-left py-1 text-slate-600">Kation</th>
+                                        <th class="text-right py-1 text-slate-600">mg/L</th>
+                                        <th class="text-right py-1 text-slate-600">meq/L</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="print-cation-body"></tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <table class="w-full text-sm">
+                                <thead class="border-b border-slate-300">
+                                    <tr>
+                                        <th class="text-left py-1 text-slate-600">Anion</th>
+                                        <th class="text-right py-1 text-slate-600">mg/L</th>
+                                        <th class="text-right py-1 text-slate-600">meq/L</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="print-anion-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Print Only Balance Summary -->
+                    <div class="mt-4 p-2 border border-slate-300 rounded bg-slate-50 text-xs flex justify-between items-center">
+                         <div>
+                            <span class="font-bold text-slate-700">Neraca Ion (CBE):</span> 
+                            <span id="print-cbe-val">0.00%</span>
+                         </div>
+                         <div class="text-slate-500">
+                            Total Kation: <span id="print-sum-cat">0</span> meq/L | Total Anion: <span id="print-sum-an">0</span> meq/L
+                         </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mb-4 text-slate-700 print:mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500 print:hidden"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+                    <h2 class="font-semibold text-lg print:font-bold print:text-black">Estimasi Mineral Terbentuk</h2>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-lg overflow-hidden flex-grow shadow-sm print:shadow-none print:border print:border-slate-300">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200 print:bg-slate-100 print:text-black">
+                            <tr>
+                                <th class="p-3">Rumus</th>
+                                <th class="p-3">Nama Mineral</th>
+                                <th class="p-3 text-right">Konsentrasi (mg/L)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body" class="divide-y divide-slate-100 print:divide-slate-200">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-semibold border-t border-slate-200 print:bg-slate-50 print:border-slate-300">
+                            <tr>
+                                <td colspan="2" class="p-3 text-right text-slate-600">Total Padatan Terlarut (TDS Calc):</td>
+                                <td id="tds-total" class="p-3 text-right text-slate-900">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="mt-4 bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-xs text-yellow-800 print:text-slate-600 print:border-none print:bg-white print:italic print:px-0">
+                    <p><strong>Catatan:</strong> Perhitungan ini menggunakan metode "Hypothetical Combinations" standar industri air. Urutan pairing: Kation (Ca → Mg → Na → K) dipasangkan dengan Anion (HCO₃ → SO₄ → NO₃ → Cl).</p>
+                </div>
+
+                <div class="mt-8 pt-4 border-t border-slate-200 text-center text-xs text-slate-400 font-mono">
+                    email: erinaldiy@gmail.com
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script (Vanilla JS) -->
+    <script>
+        // Data Definitions
+        const IONS = [
+            { id: 'ca', name: 'Kalsium', symbol: 'Ca²⁺', charge: 2, mw: 40.078, type: 'cation', defaultValue: 85 },
+            { id: 'mg', name: 'Magnesium', symbol: 'Mg²⁺', charge: 2, mw: 24.305, type: 'cation', defaultValue: 24 },
+            { id: 'na', name: 'Natrium', symbol: 'Na⁺', charge: 1, mw: 22.990, type: 'cation', defaultValue: 15 },
+            { id: 'k', name: 'Kalium', symbol: 'K⁺', charge: 1, mw: 39.098, type: 'cation', defaultValue: 5 },
+            { id: 'hco3', name: 'Bikarbonat', symbol: 'HCO₃⁻', charge: 1, mw: 61.017, type: 'anion', defaultValue: 280 },
+            { id: 'so4', name: 'Sulfat', symbol: 'SO₄²⁻', charge: 2, mw: 96.06, type: 'anion', defaultValue: 45 },
+            { id: 'cl', name: 'Klorida', symbol: 'Cl⁻', charge: 1, mw: 35.453, type: 'anion', defaultValue: 32 },
+            { id: 'no3', name: 'Nitrat', symbol: 'NO₃⁻', charge: 1, mw: 62.004, type: 'anion', defaultValue: 0 },
+        ];
+
+        let inputs = {};
+
+        // Initialize App
+        function init() {
+            const cationContainer = document.getElementById('cation-inputs');
+            const anionContainer = document.getElementById('anion-inputs');
+
+            IONS.forEach(ion => {
+                inputs[ion.id] = ion.defaultValue;
+
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label class="block text-xs font-medium text-slate-600 mb-1">${ion.name} (${ion.symbol})</label>
+                    <input type="number" id="input-${ion.id}" value="${ion.defaultValue}" 
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        oninput="updateInput('${ion.id}', this.value)">
+                `;
+
+                if (ion.type === 'cation') cationContainer.appendChild(div);
+                else anionContainer.appendChild(div);
+            });
+
+            calculate();
+        }
+
+        // Handle Input Updates
+        function updateInput(id, val) {
+            inputs[id] = parseFloat(val) || 0;
+            calculate();
+        }
+
+        // Core Calculation Logic
+        function calculate() {
+            // 1. Convert to meq
+            const meq = {};
+            IONS.forEach(ion => {
+                meq[ion.id] = (inputs[ion.id] / ion.mw) * ion.charge;
+            });
+
+            // 2. Balance Check
+            let catSum = 0;
+            let anSum = 0;
+            IONS.forEach(ion => {
+                if (ion.type === 'cation') catSum += meq[ion.id];
+                else anSum += meq[ion.id];
+            });
+
+            const error = (catSum + anSum) === 0 ? 0 : ((catSum - anSum) / (catSum + anSum)) * 100;
+            updateBalanceUI(error, catSum, anSum);
+            updatePrintTables(meq); // Update print-only tables
+
+            // 3. Pairing Logic (Hypothetical Salts)
+            const minerals = [];
+            const currentMeq = { ...meq };
+
+            const pair = (catId, anId, formula, name, mw, charge) => {
+                const catVal = currentMeq[catId];
+                const anVal = currentMeq[anId];
+                // Threshold to avoid floating point dust
+                if (catVal <= 0.0001 || anVal <= 0.0001) return;
+
+                const usedMeq = Math.min(catVal, anVal);
+                const mgL = usedMeq * (mw / charge);
+
+                minerals.push({ formula, name, mgL });
+                
+                // Reduce available ions
+                currentMeq[catId] -= usedMeq;
+                currentMeq[anId] -= usedMeq;
+            };
+
+             // Standard Pairing Sequence: Ca > Mg > Na > K with HCO3 > SO4 > NO3 > Cl
+            // Phase 1: Bicarbonates
+            pair('ca', 'hco3', 'Ca(HCO₃)₂', 'Kalsium Bikarbonat', 40.08 + (2 * 61.017), 2);
+            pair('mg', 'hco3', 'Mg(HCO₃)₂', 'Magnesium Bikarbonat', 24.305 + (2 * 61.017), 2);
+            pair('na', 'hco3', 'NaHCO₃', 'Natrium Bikarbonat', 22.99 + 61.017, 1);
+            pair('k', 'hco3', 'KHCO₃', 'Kalium Bikarbonat', 39.098 + 61.017, 1);
+
+            // Phase 2: Sulfates
+            pair('ca', 'so4', 'CaSO₄', 'Kalsium Sulfat', 40.08 + 96.06, 2);
+            pair('mg', 'so4', 'MgSO₄', 'Magnesium Sulfat', 24.305 + 96.06, 2);
+            pair('na', 'so4', 'Na₂SO₄', 'Natrium Sulfat', (2 * 22.99) + 96.06, 2);
+            pair('k', 'so4', 'K₂SO₄', 'Kalium Sulfat', (2 * 39.098) + 96.06, 2);
+
+            // Phase 3: Nitrates
+            pair('ca', 'no3', 'Ca(NO₃)₂', 'Kalsium Nitrat', 40.08 + (2 * 62.004), 2);
+            pair('mg', 'no3', 'Mg(NO₃)₂', 'Magnesium Nitrat', 24.305 + (2 * 62.004), 2);
+            pair('na', 'no3', 'NaNO₃', 'Natrium Nitrat', 22.99 + 62.004, 1);
+            pair('k', 'no3', 'KNO₃', 'Kalium Nitrat', 39.098 + 62.004, 1);
+
+            // Phase 4: Chlorides
+            pair('ca', 'cl', 'CaCl₂', 'Kalsium Klorida', 40.08 + (2 * 35.45), 2);
+            pair('mg', 'cl', 'MgCl₂', 'Magnesium Klorida', 24.305 + (2 * 35.45), 2);
+            pair('na', 'cl', 'NaCl', 'Natrium Klorida', 22.99 + 35.45, 1);
+            pair('k', 'cl', 'KCl', 'Kalium Klorida', 39.098 + 35.45, 1);
+
+            renderResults(minerals);
+        }
+
+        // Update the hidden print tables
+        function updatePrintTables(meq) {
+            const cationBody = document.getElementById('print-cation-body');
+            const anionBody = document.getElementById('print-anion-body');
+            
+            cationBody.innerHTML = '';
+            anionBody.innerHTML = '';
+
+            IONS.forEach(ion => {
+                const val = inputs[ion.id] || 0;
+                const meqVal = meq[ion.id] || 0;
+                
+                // Only show rows that have values > 0 to save space on print
+                // if (val <= 0) return; 
+                // Actually standard report shows 0 too usually, let's keep it
+
+                const row = `
+                    <tr class="border-b border-slate-100">
+                        <td class="py-1 text-slate-800">${ion.name} (${ion.symbol})</td>
+                        <td class="py-1 text-right text-slate-600 font-mono">${val.toFixed(2)}</td>
+                        <td class="py-1 text-right text-slate-400 font-mono text-xs">${meqVal.toFixed(3)}</td>
+                    </tr>
+                `;
+
+                if (ion.type === 'cation') cationBody.innerHTML += row;
+                else anionBody.innerHTML += row;
+            });
+        }
+
+        // UI Updates
+        function updateBalanceUI(error, cat, an) {
+            const isBad = Math.abs(error) > 10;
+            
+            // Interactive UI
+            const card = document.getElementById('balance-card');
+            const title = document.getElementById('balance-title');
+            const iconDiv = document.getElementById('balance-icon');
+            const warning = document.getElementById('balance-warning');
+            const details = document.getElementById('balance-details');
+
+            details.innerHTML = `Total Kation: ${cat.toFixed(2)} meq/L <br> Total Anion: ${an.toFixed(2)} meq/L`;
+
+            // Print UI
+            document.getElementById('print-cbe-val').innerText = `${error.toFixed(2)}%`;
+            document.getElementById('print-sum-cat').innerText = cat.toFixed(2);
+            document.getElementById('print-sum-an').innerText = an.toFixed(2);
+
+            // Visual Status
+            if (isBad) {
+                card.className = "mt-6 p-4 rounded-lg border flex items-start gap-3 bg-red-50 border-red-200";
+                title.className = "font-semibold text-sm text-red-700";
+                title.innerText = `Neraca Ion (CBE): ${error.toFixed(2)}%`;
+                iconDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500 mt-1"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
+                warning.classList.remove('hidden');
+            } else {
+                card.className = "mt-6 p-4 rounded-lg border flex items-start gap-3 bg-emerald-50 border-emerald-200";
+                title.className = "font-semibold text-sm text-emerald-700";
+                title.innerText = `Neraca Ion (CBE): ${error.toFixed(2)}%`;
+                iconDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 mt-1"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+                warning.classList.add('hidden');
+            }
+        }
+
+        function renderResults(minerals) {
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            if (minerals.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400 italic">Masukkan data ion untuk melihat hasil</td></tr>`;
+            } else {
+                minerals.forEach(min => {
+                    total += min.mgL;
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 transition-colors print:hover:bg-transparent";
+                    row.innerHTML = `
+                        <td class="p-3 font-mono text-slate-700 font-medium">${min.formula}</td>
+                        <td class="p-3 text-slate-600">${min.name}</td>
+                        <td class="p-3 text-right font-bold text-slate-800">${min.mgL.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            document.getElementById('tds-total').innerText = total.toFixed(2);
+        }
+
+        function saveConfig() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inputs, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "water_analysis_config.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // Start App on Load
+        window.onload = init;
+    </script>
+</body>
+</html>
